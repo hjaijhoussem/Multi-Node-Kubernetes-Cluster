@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ressource-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ressource-app
+  template:
+    metadata:
+      labels:
+        app: ressource-app
+    spec:
+      containers:
+      - name: myapp
+        image: hjaiejhoussem/resourceserver:v2
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8082
+        env:
+        - name: KEYCLOCK_CERTS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ressource-configmap
+              key: KEYCLOCK_CERTS_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ressource-service
+spec:
+  selector:
+    app: ressource-app
+  ports:
+  - port: 80
+    targetPort: 8082
